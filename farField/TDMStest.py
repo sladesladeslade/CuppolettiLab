@@ -57,7 +57,7 @@ border = 5
 [b, a] = sp.signal.butter(border, critfreqs/fh, "bandpass")
 
 # do bworth on data
-sp.signal.filtfilt(b, a, corData)
+pData = sp.signal.filtfilt(b, a, corData)
 
 # FFT - for single mic across frequency bins
     # set up frequency bins
