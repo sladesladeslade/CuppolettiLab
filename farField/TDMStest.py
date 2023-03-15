@@ -5,6 +5,7 @@
 import numpy as np
 import nptdms as nptd
 import scipy as sp
+import matplotlib.pyplot as plt
 
 tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50\\mic6inplane\\data0.tdms")
 # for group in tdms_file.groups():
@@ -64,7 +65,26 @@ pData = sp.signal.filtfilt(b, a, corData)
 binwidth = 50
 nb = fs/binwidth    # num of bins
 
+t = np.linspace(0, 5, N)
+
+# testing data and filters
+# plt.plot(t, data[0,:], label="raw")
+# plt.plot(t, corData[0,:], label="corrected")
+# plt.plot(t, pData[0,:], label="filtered")
+# plt.legend()
+# plt.show()
+
 # take FFT of signal
+pFFT = pData.copy()
+for i in range(len(data)):
+    pFFT[i, :] = sp.fft.fft(pData.copy()[i, :])
+
+# FFT plotting test
+# freqs = np.linspace(0, fs, N)
+# plt.semilogx(freqs, pFFT[0,:])
+# plt.xlim([Wl, Wh])
+# plt.show()
+
 # do Xn(fn) for each bin
 # do NB (SPL) for each bin w/ Xn(fn)
 
