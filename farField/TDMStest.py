@@ -60,10 +60,14 @@ border = 5
 pData = sp.signal.filtfilt(b, a, corData)
 
 # FFT - for single mic across frequency bins
-    # set up frequency bins
-    # do Xn(fn) for each bin
-    # do NB (SPL) for each bin w/ Xn(fn)
+# set up frequency bins
+binwidth = 50
+nb = fs/binwidth    # num of bins
+
+# take FFT of signal
+# do Xn(fn) for each bin
+# do NB (SPL) for each bin w/ Xn(fn)
 
 # do OASPL - for single mic across entire frequency range
-    # take rms of filtered data
-    # do OASPL calc w/ rms
+# take rms of filtered data
+# do OASPL calc w/ rms
