@@ -33,3 +33,14 @@ for group in tdms_file.groups():
             # store in horizontal array
             data[i, k] = channel[k]
         i += 1
+
+# butterworth filter on pressure vals
+
+# FFT - for single mic across frequency bins
+    # set up frequency bins
+    # do Xn(fn) for each bin
+    # do NB (SPL) for each bin w/ Xn(fn)
+
+# do OASPL - for single mic across entire frequency range
+    # take rms of filtered data
+    # do OASPL calc w/ rms
