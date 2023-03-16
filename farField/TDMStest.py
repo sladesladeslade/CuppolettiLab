@@ -109,7 +109,7 @@ plt.xlabel("$f \ (Hz)$")
 plt.ylabel("$SPL \ (dB)$")
 plt.ylim(30, 150)
 plt.grid()
-# plt.show()
+plt.show()
 
 # do OASPL - for single mic across entire frequency range
 # take rms of filtered data
