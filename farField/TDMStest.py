@@ -7,7 +7,9 @@ import nptdms as nptd
 import scipy as sp
 import matplotlib.pyplot as plt
 
-tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50\\mic6inplane\\data12.tdms")
+tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cincinnati \
+                               \\Cuppoletti Lab\\NearFieldAcousticDuctedRotor\\slade mic \
+                                data\\20220725\\ducted\\tm0.50\\mic6inplane\\data12.tdms")
 # for group in tdms_file.groups():
     # group_name = group.name
     # for channel in group.channels():
