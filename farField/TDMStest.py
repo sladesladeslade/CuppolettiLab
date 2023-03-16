@@ -7,7 +7,7 @@ import nptdms as nptd
 import scipy as sp
 import matplotlib.pyplot as plt
 
-tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50\\mic6inplane\\data0.tdms")
+tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50\\mic6inplane\\data12.tdms")
 # for group in tdms_file.groups():
     # group_name = group.name
     # for channel in group.channels():
@@ -61,15 +61,10 @@ border = 5
 # do bworth on data
 pData = sp.signal.filtfilt(b, a, corData)
 
-# cut down data to exclude outside of filter
-deletion = np.arange(0, 98, 1)
-deletion = np.concatenate((deletion, np.arange(Wh, fs, 1)))
-pData = np.delete(pData, deletion, 1)
-
 # FFT - for single mic across frequency bins
 # set up frequency bins
 binwidth = 50
-nb = int((fs - Wl - (fs - Wh))/binwidth)    # num of bins
+nb = int(fs/binwidth)    # num of bins
 
 # testing data and filters
 # t = np.linspace(0, 5, len(N))
@@ -95,7 +90,7 @@ Xtemp = np.empty([np.shape(pData)[1]])
 Xn = np.empty([len(pFFT), nb])
 for i in range(len(pFFT)):
     for k in range(nb):
-        start = k*binwidth + 100
+        start = k*binwidth
         end = start + binwidth + k*binwidth
         pts = np.arange(start, end, 1)
         for p in range(binwidth):
@@ -107,9 +102,13 @@ nbSPL = np.empty([len(Xn), nb])
 for i in range(len(Xn)):
     nbSPL[i, :] = 10*np.log10(Xn[i, :]/(pref**2))
 
-plotfreq = np.arange(Wl, Wh, binwidth)
+plotfreq = np.arange(0, fs, binwidth)
 plt.semilogx(plotfreq, nbSPL[0,:])
-plt.xlim([Wl, 20000])
+plt.xlim([Wl, Wh])
+plt.xlabel("$f \ (Hz)$")
+plt.ylabel("$SPL \ (dB)$")
+plt.ylim(30, 150)
+plt.grid()
 plt.show()
 
 # do OASPL - for single mic across entire frequency range
