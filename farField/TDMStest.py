@@ -20,6 +20,7 @@ tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cinci
 fs = 204800     # sampling frequency
 samptime = 5        # sampling time
 N = fs*samptime      # number of data points
+pref = 20e-6    # ref p for calcs
 
 for group in tdms_file.groups():
 
@@ -60,14 +61,18 @@ border = 5
 # do bworth on data
 pData = sp.signal.filtfilt(b, a, corData)
 
+# cut down data to exclude outside of filter
+deletion = np.arange(0, 98, 1)
+deletion = np.concatenate((deletion, np.arange(Wh, fs, 1)))
+pData = np.delete(pData, deletion, 1)
+
 # FFT - for single mic across frequency bins
 # set up frequency bins
 binwidth = 50
-nb = fs/binwidth    # num of bins
-
-t = np.linspace(0, 5, N)
+nb = int((fs - Wl - (fs - Wh))/binwidth)    # num of bins
 
 # testing data and filters
+# t = np.linspace(0, 5, len(N))
 # plt.plot(t, data[0,:], label="raw")
 # plt.plot(t, corData[0,:], label="corrected")
 # plt.plot(t, pData[0,:], label="filtered")
@@ -76,7 +81,7 @@ t = np.linspace(0, 5, N)
 
 # take FFT of signal
 pFFT = pData.copy()
-for i in range(len(data)):
+for i in range(len(pData)):
     pFFT[i, :] = sp.fft.fft(pData.copy()[i, :])
 
 # FFT plotting test
@@ -86,7 +91,26 @@ for i in range(len(data)):
 # plt.show()
 
 # do Xn(fn) for each bin
+Xtemp = np.empty([np.shape(pData)[1]])
+Xn = np.empty([len(pFFT), nb])
+for i in range(len(pFFT)):
+    for k in range(nb):
+        start = k*binwidth + 100
+        end = start + binwidth + k*binwidth
+        pts = np.arange(start, end, 1)
+        for p in range(binwidth):
+            Xtemp[p] = 2*(np.abs(pFFT[i, pts[p]]))**2
+        Xn[i, k] = np.mean(Xtemp)
+
 # do NB (SPL) for each bin w/ Xn(fn)
+nbSPL = np.empty([len(Xn), nb])
+for i in range(len(Xn)):
+    nbSPL[i, :] = 10*np.log10(Xn[i, :]/(pref**2))
+
+plotfreq = np.arange(Wl, Wh, binwidth)
+plt.semilogx(plotfreq, nbSPL[0,:])
+plt.xlim([Wl, 20000])
+plt.show()
 
 # do OASPL - for single mic across entire frequency range
 # take rms of filtered data
