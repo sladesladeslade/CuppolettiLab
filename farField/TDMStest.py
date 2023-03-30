@@ -7,9 +7,7 @@ import nptdms as nptd
 import scipy as sp
 import matplotlib.pyplot as plt
 
-tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cincinnati"
-                               "\\Cuppoletti Lab\\NearFieldAcousticDuctedRotor\\slade mic data"
-                                "\\20220725\\ducted\\tm0.50\\mic6inplane\\data12.tdms")
+tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\Desktop\\data12.tdms")
 # for group in tdms_file.groups():
     # group_name = group.name
     # for channel in group.channels():
@@ -44,6 +42,10 @@ corFac = np.array([0.9964, 0.9945, 0.99894, 0.99841, 1.00117, 0.99957, 0.99798, 
 corData = data.copy()
 for i in range(len(data)):
     corData[i, :] = data.copy()[i, :]*corFac[i]
+
+xs = np.arange(1, 10000, 1)
+plt.plot(xs, data[0, 0:9999])
+plt.show()
 
 # butterworth filter on pressure vals
 # critical freqs
@@ -104,18 +106,21 @@ nbSPL = np.empty([len(Xn), nb])
 for i in range(len(Xn)):
     nbSPL[i, :] = 10*np.log10(Xn[i, :]/(pref**2))
 
-plotfreq = np.arange(0, fs, binwidth)
-plt.semilogx(plotfreq, nbSPL[0,:])
-plt.xlim([Wl, Wh])
-plt.xlabel("$f \ (Hz)$")
-plt.ylabel("$SPL \ (dB)$")
-plt.ylim(30, 150)
-plt.grid()
-plt.show()
+# plotfreq = np.arange(0, fs, binwidth)
+# plt.semilogx(plotfreq, nbSPL[0,:])
+# plt.xlim([Wl, Wh])
+# plt.xlabel("$f \ (Hz)$")
+# plt.ylabel("$SPL \ (dB)$")
+# plt.ylim(30, 150)
+# plt.grid()
+# plt.show()
+
 
 # do OASPL - for single mic across entire frequency range
 # take rms of filtered data
-rms = np.sqrt(np.mean(np.square(pData[0,:])))
+# rms = np.sqrt(np.mean(np.square(pData[0,:])))
+rms = np.linalg.norm(corData[0,:])/np.sqrt(len(channel))
+print(rms)
 # do OASPL calc w/ rms
 oaspl = 20*np.log10(rms/pref)
 print(oaspl)
