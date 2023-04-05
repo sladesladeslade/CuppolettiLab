@@ -7,7 +7,9 @@ import nptdms as nptd
 import scipy as sp
 import matplotlib.pyplot as plt
 
-tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\Desktop\\data12.tdms")
+tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab"
+                               "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50"
+                               "\\mic6inplane\\data12.tdms")
 # for group in tdms_file.groups():
     # group_name = group.name
     # for channel in group.channels():
@@ -43,10 +45,6 @@ corData = data.copy()
 for i in range(len(data)):
     corData[i, :] = data.copy()[i, :]*corFac[i]
 
-xs = np.arange(1, 10000, 1)
-plt.plot(xs, data[0, 0:9999])
-plt.show()
-
 # butterworth filter on pressure vals
 # critical freqs
 Wl = 100
@@ -66,61 +64,33 @@ border = 5
 pData = sp.signal.filtfilt(b, a, corData)
 
 # FFT - for single mic across frequency bins
-# set up frequency bins
-binwidth = 50
-nb = int(fs/binwidth)    # num of bins
+# set up bins
+bw = 50         # binwidth
+bins = N//bw
+T = samptime/(bw*N)
 
-# testing data and filters
-# t = np.linspace(0, 5, len(N))
-# plt.plot(t, data[0,:], label="raw")
-# plt.plot(t, corData[0,:], label="corrected")
-# plt.plot(t, pData[0,:], label="filtered")
-# plt.legend()
-# plt.show()
+# do FFT on each bin
+fft1 = np.empty([bins, bw])
+for i in range(0, N, bw):
+    buck = i//bw
+    fft1[buck, :] = 2/bw*np.abs(np.fft.fft(corData[0, i:(i+bw)]))
 
-# take FFT of signal
-pFFT = pData.copy()
-for i in range(len(pData)):
-    pFFT[i, :] = sp.fft.fft(pData.copy()[i, :])
+# take rms of the daterp
+rms1 = np.empty(bins)
+for i in range(bins):
+    rms1[i] = np.sqrt(np.mean(np.square(fft1[i,:])))
 
-# FFT plotting test
-# freqs = np.linspace(0, fs, N)
-# plt.semilogx(freqs, pFFT[0,:])
-# plt.xlim([Wl, Wh])
-# plt.show()
+# convert to SPL
+spl1 = 20*np.log10(rms1[:bw//2]/pref)
 
-# do Xn(fn) for each bin
-Xtemp = np.empty([np.shape(pData)[1]])
-Xn = np.empty([len(pFFT), nb])
-for i in range(len(pFFT)):
-    for k in range(nb):
-        start = k*binwidth
-        end = start + binwidth + k*binwidth
-        pts = np.arange(start, end, 1)
-        for p in range(binwidth):
-            Xtemp[p] = 2*(np.abs(pFFT[i, pts[p]]))**2
-        Xn[i, k] = np.mean(Xtemp)
+freqs = np.fft.fftfreq(N, T)[:bw//2]
 
-# do NB (SPL) for each bin w/ Xn(fn)
-nbSPL = np.empty([len(Xn), nb])
-for i in range(len(Xn)):
-    nbSPL[i, :] = 10*np.log10(Xn[i, :]/(pref**2))
+plt.semilogx(freqs, spl1)
+plt.show()
 
-# plotfreq = np.arange(0, fs, binwidth)
-# plt.semilogx(plotfreq, nbSPL[0,:])
-# plt.xlim([Wl, Wh])
-# plt.xlabel("$f \ (Hz)$")
-# plt.ylabel("$SPL \ (dB)$")
-# plt.ylim(30, 150)
-# plt.grid()
-# plt.show()
-
-
-# do OASPL - for single mic across entire frequency range
 # take rms of filtered data
-# rms = np.sqrt(np.mean(np.square(pData[0,:])))
-rms = np.linalg.norm(corData[0,:])/np.sqrt(len(channel))
-print(rms)
+rms = np.sqrt(np.mean(np.square(pData[0,:])))
+
 # do OASPL calc w/ rms
 oaspl = 20*np.log10(rms/pref)
-print(oaspl)
+# print(oaspl)
