@@ -66,14 +66,14 @@ pData = sp.signal.filtfilt(b, a, corData)
 # FFT - for single mic across frequency bins
 # set up bins
 bw = 50         # binwidth
-bins = N//bw
-T = samptime/(bw*N)
+bins = fs//bw
+w = N//bins      # bin width in data points
 
 # do FFT on each bin
-fft1 = np.empty([bins, bw])
-for i in range(0, N, bw):
-    buck = i//bw
-    fft1[buck, :] = 2/bw*np.abs(np.fft.fft(corData[0, i:(i+bw)]))
+fft1 = np.empty([bins, w//2])
+for i in range(0, N, w):
+    buck = i//w
+    fft1[buck, :] = 2/w*np.abs(np.fft.fft(corData[0, i:(i+w)])[:w//2])
 
 # take rms of the daterp
 rms1 = np.empty(bins)
@@ -81,10 +81,12 @@ for i in range(bins):
     rms1[i] = np.sqrt(np.mean(np.square(fft1[i,:])))
 
 # convert to SPL
-spl1 = 20*np.log10(rms1[:bw//2]/pref)
+spl1 = 20*np.log10(rms1/pref)
 
-freqs = np.fft.fftfreq(N, T)[:bw//2]
+# plotting frews
+freqs = np.arange(0, fs, bw)
 
+# plot NBSPL
 plt.semilogx(freqs, spl1)
 plt.show()
 
@@ -93,4 +95,4 @@ rms = np.sqrt(np.mean(np.square(pData[0,:])))
 
 # do OASPL calc w/ rms
 oaspl = 20*np.log10(rms/pref)
-# print(oaspl)
+print("OASPL: {0:.2f}".format(oaspl))
