@@ -76,16 +76,18 @@ for i in range(len(pData)):
 bw = 50        # binwidth
 bins = fs//bw
 
-# take rms of each freq bin
-rms1 = np.empty(N//2)
-for i in range(0, N//2, N//bins):
-    rms1[i] = np.sqrt(np.mean(np.square(fft[0, i:i+N//bins])))
+# # take rms of each freq bin
+# rms1 = np.empty(N//2)
+# for i in range(0, N//2, N//bins):
+#     rms1[i] = np.sqrt(np.mean(np.square(fft[0, i:i+N//bins])))
 
 # convert to SPL
-spl1 = 20*np.log10(rms1/pref)
+spl1 = 20*np.log10(fft[0,:]/pref)
 
 # plotting freqs
 freqs = np.arange(0, fs, bw)
+T = samptime/N
+freqs = np.fft.fftfreq(N, T)[:N//2]
 
 # plot NBSPL
 plt.semilogx(freqs, spl1)
