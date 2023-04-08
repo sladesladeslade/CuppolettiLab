@@ -63,6 +63,10 @@ border = 5
 # do bworth on data
 pData = sp.signal.filtfilt(b, a, corData)
 
+# set up bins for FFT calcs
+bucks = 250
+n = N/bucks
+
 # take FFT of data
 fft = np.empty([len(pData), N//2])
 for i in range(len(pData)):
@@ -72,17 +76,19 @@ for i in range(len(pData)):
 bw = 50        # binwidth
 bins = fs//bw
 
-# split data into frequency bins
-
-# take rms of each bin
+# take rms of each freq bin
+rms1 = np.empty(N//2)
+for i in range(0, N//2, N//bins):
+    rms1[i] = np.sqrt(np.mean(np.square(fft[0, i:i+N//bins])))
 
 # convert to SPL
+spl1 = 20*np.log10(rms1/pref)
 
 # plotting freqs
 freqs = np.arange(0, fs, bw)
 
 # plot NBSPL
-plt.semilogx(freqs, fft[0,:])
+plt.semilogx(freqs, spl1)
 plt.xlim([10**2, 10**5])
 plt.show()
 
