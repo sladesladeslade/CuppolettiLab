@@ -63,31 +63,27 @@ border = 5
 # do bworth on data
 pData = sp.signal.filtfilt(b, a, corData)
 
-# FFT - for single mic across frequency bins
+# take FFT of data
+fft = np.empty([len(pData), N//2])
+for i in range(len(pData)):
+    fft[i,:] = 2/N*np.abs(np.fft.fft(pData[0,:])[:N//2])
+
 # set up bins
-bw = 50         # binwidth
+bw = 50        # binwidth
 bins = fs//bw
-w = N//bins      # bin width in data points
 
-# do FFT on each bin
-fft1 = np.empty([bins, w//2])
-for i in range(0, N, w):
-    buck = i//w
-    fft1[buck, :] = 2/w*np.abs(np.fft.fft(corData[0, i:(i+w)])[:w//2])
+# split data into frequency bins
 
-# take rms of the daterp
-rms1 = np.empty(bins)
-for i in range(bins):
-    rms1[i] = np.sqrt(np.mean(np.square(fft1[i,:])))
+# take rms of each bin
 
 # convert to SPL
-spl1 = 20*np.log10(rms1/pref)
 
-# plotting frews
+# plotting freqs
 freqs = np.arange(0, fs, bw)
 
 # plot NBSPL
-plt.semilogx(freqs, spl1)
+plt.semilogx(freqs, fft[0,:])
+plt.xlim([10**2, 10**5])
 plt.show()
 
 # take rms of filtered data
