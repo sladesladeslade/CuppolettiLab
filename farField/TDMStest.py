@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 tdms_file = nptd.TdmsFile.read("C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab"
                                "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50"
-                               "\\mic6inplane\\data12.tdms")
+                               "\\mic6inplane\\data0.tdms")
 # for group in tdms_file.groups():
     # group_name = group.name
     # for channel in group.channels():
@@ -73,25 +73,29 @@ for i in range(len(pData)):
     fft[i,:] = 2/N*np.abs(np.fft.fft(pData[0,:])[:N//2])
 
 # set up bins
-bw = 50        # binwidth
+bw = 1        # binwidth
 bins = fs//bw
+databw = bw*N//fs
 
-# # take rms of each freq bin
-# rms1 = np.empty(N//2)
-# for i in range(0, N//2, N//bins):
-#     rms1[i] = np.sqrt(np.mean(np.square(fft[0, i:i+N//bins])))
+# take rms of each freq bin
+rms1 = np.empty(N//databw)
+for i in range(0, N//2, databw):
+    buck = i//databw
+    rms1[buck] = np.sqrt(np.mean(np.square(fft[0, i:i+databw])))
 
 # convert to SPL
-spl1 = 20*np.log10(fft[0,:]/pref)
+spl1 = 20*np.log10(rms1/pref)
 
 # plotting freqs
 freqs = np.arange(0, fs, bw)
-T = samptime/N
-freqs = np.fft.fftfreq(N, T)[:N//2]
+# T = samptime/N
+# freqs = np.fft.fftfreq(N, T)[:N//2]
 
 # plot NBSPL
 plt.semilogx(freqs, spl1)
-plt.xlim([10**2, 10**5])
+plt.xlim([10**2, 2*10**4])
+plt.ylim([20, 100])
+plt.grid()
 plt.show()
 
 # take rms of filtered data
