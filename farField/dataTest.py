@@ -59,7 +59,7 @@ pData = sp.signal.filtfilt(b, a, corData)
 fft6 = 2/N*np.abs(np.fft.fft(pData[6,:])[:N//2])
 
 # set up bins
-bw = 5
+bw = 1
 bins = fs//bw
 n = N//bins
 T = samptime/N
@@ -67,7 +67,7 @@ T = samptime/N
 # for each bin do calcs
 rms = np.empty(bins)
 spl = np.empty(bins)
-for i in range(0, N, n):
+for i in range(0, N//2, n):
     buck = i//n
     # take the rms
     rms[buck] = np.sqrt(np.mean(np.square(fft6[i:i+n])))
@@ -75,7 +75,7 @@ for i in range(0, N, n):
     # calculate SPL
     spl[buck] = 20*np.log10(rms[buck]/pref)
 
-freqs = np.fft.fftfreq(n, T)[:n//2]
+# plotting frequencies
 freqs = np.arange(0, fs, bw)
 
 # plot NBSPL
