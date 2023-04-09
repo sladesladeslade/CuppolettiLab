@@ -68,12 +68,14 @@ pData = sp.signal.filtfilt(b, a, corData)
 # set up bins
 bins = fs//50        # 50 Hz width
 n = N//bins
-T = samptime/N
+T = samptime/(fs*n)
 
 # for each bin do calcs
 fft = np.empty([bins, n//2])
 rms = np.empty(bins)
 spl = np.empty(bins)
+tempfreqs = np.fft.fftfreq(n, T)[:n//2]
+freqs = np.empty(bins)
 for i in range(0, N, n):
     buck = i//n
     # take the fft
@@ -84,9 +86,6 @@ for i in range(0, N, n):
 
     # calculate SPL
     spl[buck] = 20*np.log10(rms[buck]/pref)
-
-# plotting freqs
-freqs = np.fft.fftfreq(n, T)[:n//2]
 
 # plot NBSPL
 plt.semilogx(freqs, spl)
