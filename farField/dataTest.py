@@ -39,10 +39,12 @@ for group in tdms_file.groups():
             data[i, k] = channel[k]
         i += 1
 
+nmics = len(data)
+
 # correct data w/ correction factor
 corFac = np.array([0.9964, 0.9945, 0.99894, 0.99841, 1.00117, 0.99957, 0.99798, 0.9902])
 corData = data.copy()
-for i in range(len(data)):
+for i in range(nmics):
     corData[i, :] = data.copy()[i, :]*corFac[i]
 
 # butterworth filter on pressure vals
@@ -63,44 +65,41 @@ border = 5
 # do bworth on data
 pData = sp.signal.filtfilt(b, a, corData)
 
-# set up bins for FFT calcs
-bucks = 250
-n = N/bucks
-
-# take FFT of data
-fft = np.empty([len(pData), N//2])
-for i in range(len(pData)):
-    fft[i,:] = 2/N*np.abs(np.fft.fft(pData[0,:])[:N//2])
-
 # set up bins
-bw = 1        # binwidth
-bins = fs//bw
-databw = bw*N//fs
+bins = fs//50        # 50 Hz width
+n = N//bins
+T = samptime/N
 
-# take rms of each freq bin
-rms1 = np.empty(N//databw)
-for i in range(0, N//2, databw):
-    buck = i//databw
-    rms1[buck] = np.sqrt(np.mean(np.square(fft[0, i:i+databw])))
+# for each bin do calcs
+fft = np.empty([bins, n//2])
+rms = np.empty(bins)
+spl = np.empty(bins)
+for i in range(0, N, n):
+    buck = i//n
+    # take the fft
+    fft[buck,:] = 2/n*np.abs(np.fft.fft(pData[6, i:i+n])[:n//2])
 
-# convert to SPL
-spl1 = 20*np.log10(rms1/pref)
+    # take the rms
+    rms[buck] = np.sqrt(np.mean(np.square(fft[buck,:])))
+
+    # calculate SPL
+    spl[buck] = 20*np.log10(rms[buck]/pref)
 
 # plotting freqs
-freqs = np.arange(0, fs, bw)
-# T = samptime/N
-# freqs = np.fft.fftfreq(N, T)[:N//2]
+freqs = np.fft.fftfreq(n, T)[:n//2]
 
 # plot NBSPL
-plt.semilogx(freqs, spl1)
+plt.semilogx(freqs, spl)
 plt.xlim([10**2, 2*10**4])
-plt.ylim([20, 100])
+plt.ylim(20)
 plt.grid()
 plt.show()
 
-# take rms of filtered data
-rms = np.sqrt(np.mean(np.square(pData[0,:])))
-
 # do OASPL calc w/ rms
-oaspl = 20*np.log10(rms/pref)
-print("OASPL: {0:.2f}".format(oaspl))
+for mic in range(nmics):
+    # take rms of filtered data
+    rms = np.sqrt(np.mean(np.square(pData[mic,:])))
+    # get OASPL
+    oaspl = 20*np.log10(rms/pref)
+    # print OASPLs
+    print("OASPL {0}: {1:.2f}".format(mic, oaspl))
