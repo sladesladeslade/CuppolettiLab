@@ -58,16 +58,19 @@ pData = sp.signal.filtfilt(b, a, corData)
 # set up bins
 bins = fs//50        # 50 Hz width
 n = N//bins
-T = samptime/(fs*n)
+T = samptime/(bins*n)
 
 # for each bin do calcs
 fft = np.empty([bins, n//2])
 rms = np.empty(bins)
 spl = np.empty(bins)
+freqs = np.empty_like(fft)
 for i in range(0, N, n):
     buck = i//n
     # take the fft
     fft[buck,:] = 2/n*np.abs(np.fft.fft(pData[6, i:i+n])[:n//2])
+
+    freqs[buck,:] = np.fft.fftfreq(n, T)[:n//2]
 
     # take the rms
     rms[buck] = np.sqrt(np.mean(np.square(fft[buck,:])))
@@ -76,7 +79,7 @@ for i in range(0, N, n):
     spl[buck] = 20*np.log10(rms[buck]/pref)
 
 # plot NBSPL
-plt.semilogx(freqs, spl)
+plt.semilogx(freqs, fft)
 plt.xlim([10**2, 2*10**4])
 plt.ylim(20)
 plt.grid()
