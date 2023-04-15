@@ -59,24 +59,25 @@ pData = sp.signal.filtfilt(b, a, corData)
 fft6 = 2/N*np.abs(np.fft.fft(pData[6,:])[:N//2])
 
 # set up bins
-bw = 1
+bw = 5
 bins = fs//bw
 n = N//bins
-T = samptime/N
+T = samptime/n
 
-# for each bin do calcs
-rms = np.empty(bins)
-spl = np.empty(bins)
-for i in range(0, N//2, n):
-    buck = i//n
-    # take the rms
-    rms[buck] = np.sqrt(np.mean(np.square(fft6[i:i+n])))
-
-    # calculate SPL
-    spl[buck] = 20*np.log10(rms[buck]/pref)
-
-# plotting frequencies
-freqs = np.arange(0, fs, bw)
+print("bins", bins)
+print("ensem", n)
+# dilip mode
+# split to ensembles
+pDataens = np.array_split(pData[6], n)
+# do fft
+fft = np.array([np.abs(np.fft.fft(pDataens[i])) for i in range(n)])
+# RMS
+rms = np.array([np.sqrt(np.sum((2*fft[i]/bins)**2)/n) for i in range(n)])
+print(rms)
+# SPL
+spl = 20*np.log10(rms[:bins//2]/pref)
+# plotting
+freqs = np.fft.fftfreq(bins, T/(bins-1))[:bins//2]
 
 # plot NBSPL
 plt.semilogx(freqs, spl)
