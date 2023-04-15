@@ -47,19 +47,22 @@ class micData():
         # make dictionary for data
         data = {}
 
-        # read in all files
-        tdmsfiles = [nptd.TdmsFile.read(file) for file in files]
-
         # go through each file
-        for i in range(files):
-            for group in tdmsfiles[i].groups():
+        for i in range(len(files)):
+            # read in file
+            tdmsfile = nptd.TdmsFile.read(files[i])
+
+            # go thru group in file
+            for group in tdmsfile.groups():
                 # make data array
                 tempdata = np.empty([len(group.channels()), self.N])
 
                 # go thru each channel in group
+                k = 0
                 for channel in group.channels():
                     # store data in array
-                    tempdata[i, :] = channel
+                    tempdata[k, :] = channel
+                    k += 1
             # add data to dictionary
             data["data{0}".format(i)] = tempdata
 
@@ -69,6 +72,6 @@ class micData():
 
 if __name__ == "__main__":
     # testing
-    micData = micData("C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab"
+    micData = micData(["C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab"
                         "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50"
-                        "\\mic6inplane\\data0.tdms", 204800, 5)
+                        "\\mic6inplane\\data0.tdms"], 204800, 5)
