@@ -45,7 +45,7 @@ class micData():
         self.N = fs*samptime      # number of data points
 
         # make dictionary for data
-        data = {}
+        self.data = {}
 
         # go through each file
         for i in range(len(files)):
@@ -64,14 +64,17 @@ class micData():
                     tempdata[k, :] = channel
                     k += 1
             # add data to dictionary
-            data["data{0}".format(i)] = tempdata
+            self.data["data{0}".format(i)] = tempdata
 
         # get number of mics
-        self.nmics = len(data["data0"])
-
+        self.nmics = len(self.data["data0"])
+        print(self.data["data0"])
+        print(self.data["data1"])
 
 if __name__ == "__main__":
     # testing
     micData = micData(["C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab"
                         "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50"
-                        "\\mic6inplane\\data0.tdms"], 204800, 5)
+                        "\\mic6inplane\\data0.tdms", "C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab"
+                        "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50"
+                        "\\mic6inplane\\data1.tdms"], 204800, 5)
