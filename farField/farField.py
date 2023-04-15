@@ -31,24 +31,40 @@ class micData():
     """
     def __init__(self, files, fs, samptime):
         """
-        Reads in the list of data files into numpy arrays.
-        Also sets up variables with data collection info.
+        Reads in the list of data files into numpy arrays
+        in a dictionary. Also sets up variables with data
+        collection info for later use.
 
         :param_files: list of .tdms files (1 group)
         :param_fs: sampling frequency (Hz)
         :param_samptime: sampling time (s)
         """
         # set up collection info
-        self.fs = 204800     # sampling frequency
-        self.samptime = 5        # sampling time
+        self.fs = fs     # sampling frequency
+        self.samptime = samptime        # sampling time
         self.N = fs*samptime      # number of data points
-        self.pref = 20e-6    # ref p for calcs
 
         # make dictionary for data
         data = {}
 
-        # do this for each data file in loop
-        data["data{0}".format(i)] = data[i, k]
+        # read in all files
+        tdmsfiles = [nptd.TdmsFile.read(file) for file in files]
+
+        # go through each file
+        for i in range(files):
+            for group in tdmsfiles[i].groups():
+                # make data array
+                tempdata = np.empty([len(group.channels()), self.N])
+
+                # go thru each channel in group
+                for channel in group.channels():
+                    # store data in array
+                    tempdata[i, :] = channel
+            # add data to dictionary
+            data["data{0}".format(i)] = tempdata
+
+        # get number of mics
+        self.nmics = len(data["data0"])
 
 
 if __name__ == "__main__":
