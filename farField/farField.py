@@ -83,7 +83,6 @@ class micData():
         :param_corfac: np array of correction factor for each mic
         :param_critfreqs: np array of crtifreqs
         :param_border: butterworth order
-        :returns: dictionary with processed data
         """
         # apply correction factor to each file
         self.corData = self.data.copy()
@@ -100,16 +99,21 @@ class micData():
             for i in range(len(self.data[key])):
                 self.pData[key][i, :] = sp.signal.filtfilt(b, a, self.corData[key][i, :])
 
-        return self.pData
-
     def oaspl(self, filenum):
         """
         Computes the OASPL of each mic for each
         data file.
 
         :param_filenum: data file index to report
-        :returns: OASPL for each mic in data file
+        :returns: np array with OASPL for each mic in data file
         """
+        oaspls = np.empty(len(self.pData["data{0}".format(filenum)]))
+        for i in range(len(self.pData["data{0}".format(filenum)])):
+            # calculate oaspl
+            rms = np.sqrt(np.mean(np.square(self.pData["data{0}".format(filenum)][i,:])))
+            oaspls[i] = 20*np.log10(rms/20e-6)
+
+        return oaspls
 
 
 if __name__ == "__main__":
@@ -120,5 +124,6 @@ if __name__ == "__main__":
     micData = micData(path, 204800, 5)
 
     corFac = np.array([0.9964, 0.9945, 0.99894, 0.99841, 1.00117, 0.99957, 0.99798, 0.9902])
-    print(micData.data["data0"])
-    print(micData.dataProcess(corFac)["data0"])
+
+    micData.dataProcess(corFac)
+    print(micData.oaspl(0))
