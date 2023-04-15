@@ -74,39 +74,42 @@ class micData():
         # get number of mics
         self.nmics = len(self.data["data0"])
 
-        def dataProcess(self, corfac, critfreqs=np.array([100, 100000]), border=5):
-            """
-            Processes the data by correcting with given
-            correction factor and then doing a butterworth
-            bandpass filter.
+    def dataProcess(self, corfac, critfreqs=np.array([100, 100000]), border=5):
+        """
+        Processes the data by correcting with given
+        correction factor and then doing a butterworth
+        bandpass filter.
 
-            :param_corfac: np array of correction factor for each mic
-            :param_critfreqs: np array of crtifreqs
-            :param_border: butterworth order
-            :returns: dictionary with processed data
-            """
-            # apply correction factor to each file
-            self.corData = {}
-            for i in len(self.data):
-                for k in range(self.nmics):
-                    self.corData["data{0}".format(i)] = self.data["data{0}".format(i)].copy[k, :]*corfac[k]
+        :param_corfac: np array of correction factor for each mic
+        :param_critfreqs: np array of crtifreqs
+        :param_border: butterworth order
+        :returns: dictionary with processed data
+        """
+        # apply correction factor to each file
+        self.corData = self.data.copy()
+        for key in self.data:
+            for i in range(len(self.data[key])):
+                self.corData[key][i, :] = self.data[key][i, :]*corfac[i]
 
-            # apply butterworth filter
-            self.pData = {}
-            # setup bworth
-            fh = self.fs/2
-            [b, a] = sp.signal.butter(border, critfreqs/fh, "bandpass")
-            for i in len(self.data):
-                self.pData["data{0}".format(i)] = sp.signal.filtfilt(b, a, self.corData["data{0}".format(i)])
+        # apply butterworth filter
+        self.pData = self.corData.copy()
+        # setup bworth
+        fh = self.fs/2
+        [b, a] = sp.signal.butter(border, critfreqs/fh, "bandpass")
+        for key in self.data:
+            for i in range(len(self.data[key])):
+                self.pData[key][i, :] = sp.signal.filtfilt(b, a, self.corData[key][i, :])
 
-        def oaspl(self, filenum):
-            """
-            Computes the OASPL of each mic for each
-            data file.
+        return self.pData
 
-            :param_filenum: data file index to report
-            :returns: OASPL for each mic in data file
-            """
+    def oaspl(self, filenum):
+        """
+        Computes the OASPL of each mic for each
+        data file.
+
+        :param_filenum: data file index to report
+        :returns: OASPL for each mic in data file
+        """
 
 
 if __name__ == "__main__":
@@ -117,6 +120,5 @@ if __name__ == "__main__":
     micData = micData(path, 204800, 5)
 
     corFac = np.array([0.9964, 0.9945, 0.99894, 0.99841, 1.00117, 0.99957, 0.99798, 0.9902])
-    corData = micData.dataProcess(corFac)
     print(micData.data["data0"])
-    print(corData.pData["data0"])
+    print(micData.dataProcess(corFac)["data0"])
