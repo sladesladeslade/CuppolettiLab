@@ -18,6 +18,7 @@ import numpy as np
 import nptdms as nptd
 import scipy as sp
 import matplotlib.pyplot as plt
+import glob
 
 
 class micData():
@@ -29,13 +30,13 @@ class micData():
     field. It also features plotting functions for
     NB spectra and OASPL.
     """
-    def __init__(self, files, fs, samptime):
+    def __init__(self, path, fs, samptime):
         """
         Reads in the list of data files into numpy arrays
         in a dictionary. Also sets up variables with data
         collection info for later use.
 
-        :param_files: list of .tdms files (1 group)
+        :param_path: path to folder with .tdms files
         :param_fs: sampling frequency (Hz)
         :param_samptime: sampling time (s)
         """
@@ -46,6 +47,9 @@ class micData():
 
         # make dictionary for data
         self.data = {}
+
+        # make list of files from folder
+        files = glob.glob(path + "*.tdms")
 
         # go through each file
         for i in range(len(files)):
@@ -68,13 +72,11 @@ class micData():
 
         # get number of mics
         self.nmics = len(self.data["data0"])
-        print(self.data["data0"])
-        print(self.data["data1"])
+
 
 if __name__ == "__main__":
     # testing
-    micData = micData(["C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab"
-                        "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50"
-                        "\\mic6inplane\\data0.tdms", "C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab"
-                        "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50"
-                        "\\mic6inplane\\data1.tdms"], 204800, 5)
+    path = "C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab" \
+            "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50" \
+            "\\mic6inplane\\"
+    micData = micData(path, 204800, 5)
