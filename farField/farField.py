@@ -115,12 +115,13 @@ class micData():
 
         return oaspls
     
-    def narrowband(self, binwidth):
+    def narrowband(self, binwidth, filenum):
         """
         Computes the narrowband spectra of each mic
         for a specified data file.
 
         :param_binwidth: frequency bin width
+        :param_filenum: data file index to report
         :returns: np array of SPL values, array of frequencies
         """
         # set up bins
