@@ -101,8 +101,8 @@ class micData():
 
     def oaspl(self, filenum):
         """
-        Computes the OASPL of each mic for each
-        data file.
+        Computes the OASPL of each mic for a
+        specified data file.
 
         :param_filenum: data file index to report
         :returns: np array with OASPL for each mic in data file
@@ -114,6 +114,30 @@ class micData():
             oaspls[i] = 20*np.log10(rms/20e-6)
 
         return oaspls
+    
+    def narrowband(self, binwidth):
+        """
+        Computes the narrowband spectra of each mic
+        for a specified data file.
+
+        :param_binwidth: frequency bin width
+        :returns: np array of SPL values, array of frequencies
+        """
+        # set up bins
+        bw = binwidth
+        bins = self.fs//bw
+        n = self.N//bins
+        T = self.samptime/n
+
+        # split data to ensembles
+        # compute fft
+        # take rms
+        # convert to SPL
+
+        # get plotting frequencies
+        freqs = np.fft.fftfreq(bins, T/(bins-1))[:bins//2]
+
+        return freqs
 
 
 if __name__ == "__main__":
