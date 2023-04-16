@@ -72,7 +72,7 @@ pDataens = np.array_split(pData[6], n)
 # do fft
 fft = np.array([np.abs(np.fft.fft(pDataens[i])) for i in range(n)])
 # RMS
-rms = np.sqrt(np.sum((2*fft[i]/bins)**2)/n)
+rms = np.sqrt(np.sum((2*fft/bins)**2, axis=0)/n)
 # SPL
 spl = 20*np.log10(rms[:bins//2]/pref)
 # plotting
