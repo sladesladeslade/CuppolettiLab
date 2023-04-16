@@ -30,6 +30,23 @@ class micData():
     field. It also features plotting functions for
     NB spectra and OASPL.
 
+    Attributes
+    ----------
+    fs : int
+        Microphone sampling frequency.
+    samptime : int
+        Data sampling time.
+    N : int
+        Number of data points.
+    data : dict
+        Dictionary containing each .tdms file's data.
+    nmics : int
+        Number of microphones in each data set.
+    corData : dict
+        Dictionary containing the corrected data for each file.
+    pData : dict
+        Dictionary containing the filtered and corrected data for each file.
+
     Methods
     -------
     dataProcess(corfac, critfreqs=np.array([100, 100000]), border=5)
@@ -47,11 +64,11 @@ class micData():
 
         Parameters
         ----------
-        path: string
+        path : string
             Path to folder with .tdms files.
-        fs: int
+        fs : int
             Sampling frequency (Hz).
-        samptime: int
+        samptime : int
             Sampling time (s).
         """
         # set up collection info
@@ -95,11 +112,11 @@ class micData():
 
         Parameters
         ----------
-        corfac: np.ndarray
+        corfac : np.ndarray
             Array of correction factor for each mic.
-        critfreqs: np.ndarray, default = np.array([100, 100000])
+        critfreqs : np.ndarray, default = np.array([100, 100000])
             Array of crtifreqs.
-        border: int, default = 5
+        border : int, default = 5
             Butterworth filter order.
         """
         # apply correction factor to each file
@@ -124,12 +141,12 @@ class micData():
 
         Parameters
         ----------
-        filenum: int
+        filenum : int
             Data file index to report.
 
         Returns
         -------
-        oaspls: np.ndarray
+        oaspls : np.ndarray
             Array with OASPL for each mic in data file.
         """
         oaspls = np.empty(len(self.pData["data{0}".format(filenum)]))
@@ -147,16 +164,16 @@ class micData():
 
         Parameters
         ----------
-        filenum: int
+        filenum : int
             Data file index to report.
-        binwidth: int, default = 5
+        binwidth : int, default = 5
             Desired frequency bin width.
 
         Returns
         -------
-        spls: np.ndarray
+        spls : np.ndarray
             Array of spl for each frequency bin.
-        freqs: np.ndarray
+        freqs : np.ndarray
             Array of plotting frequencies.
         """
         # set up bins
@@ -165,12 +182,23 @@ class micData():
         n = self.N//bins
         T = self.samptime/n
 
-        filenum=filenum
+        # for ease, pull single data file first
+        datafile = self.pData["data{0}".format(filenum)]
+        spls = np.array([self.nmics, bins//2])
 
-        # split data to ensembles
-        # compute fft
-        # take rms
-        # convert to SPL
+        # loop through mics
+        for i in range(self.nmics):
+            # split data to ensembles
+            pDataens = np.array_split(datafile[i], n)
+
+            # compute fft
+            fft = np.array([np.abs(np.fft.fft(pDataens[k])) for k in range(n)])
+
+            # take rms
+            rms = np.sqrt(np.sum((2*fft/bins)**2, axis=0)/n)
+
+            # convert to SPL and store
+            spls[i] = 20*np.log10(rms[:bins//2]/20e-6)
 
         # get plotting frequencies
         freqs = np.fft.fftfreq(bins, T/(bins-1))[:bins//2]

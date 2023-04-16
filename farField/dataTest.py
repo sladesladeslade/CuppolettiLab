@@ -64,8 +64,6 @@ bins = fs//bw
 n = N//bins
 T = samptime/n
 
-print("bins", bins)
-print("ensem", n)
 # dilip mode
 # split to ensembles
 pDataens = np.array_split(pData[6], n)
