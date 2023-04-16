@@ -29,6 +29,15 @@ class micData():
     can be considered to be in the acoustic far
     field. It also features plotting functions for
     NB spectra and OASPL.
+
+    Methods
+    -------
+    dataProcess(corfac, critfreqs=np.array([100, 100000]), border=5)
+        Apply correction factor and butterworth filter to data.
+    oaspl(filenum)
+        Compute the OASPL for each mic of a given file.
+    narrowband(filenum, binwidth=5)
+        Compute the narrowband spectra of each mic of a given file.
     """
     def __init__(self, path, fs, samptime):
         """
@@ -39,11 +48,11 @@ class micData():
         Parameters
         ----------
         path: string
-            path to folder with .tdms files
+            Path to folder with .tdms files.
         fs: int
-            sampling frequency (Hz)
+            Sampling frequency (Hz).
         samptime: int
-            sampling time (s)
+            Sampling time (s).
         """
         # set up collection info
         self.fs = fs     # sampling frequency
@@ -87,11 +96,11 @@ class micData():
         Parameters
         ----------
         corfac: np.ndarray
-            array of correction factor for each mic
-        critfreqs: np.ndarray
-            array of crtifreqs
-        border: int
-            butterworth filter order
+            Array of correction factor for each mic.
+        critfreqs: np.ndarray, default = np.array([100, 100000])
+            Array of crtifreqs.
+        border: int, default = 5
+            Butterworth filter order.
         """
         # apply correction factor to each file
         self.corData = self.data.copy()
@@ -116,11 +125,11 @@ class micData():
         Parameters
         ----------
         filenum: int
-            data file index to report
+            Data file index to report.
         Returns
         -------
         oaspls: np.ndarray
-            array with OASPL for each mic in data file
+            Array with OASPL for each mic in data file.
         """
         oaspls = np.empty(len(self.pData["data{0}".format(filenum)]))
         for i in range(len(self.pData["data{0}".format(filenum)])):
@@ -130,29 +139,31 @@ class micData():
 
         return oaspls
     
-    def narrowband(self, binwidth, filenum):
+    def narrowband(self, filenum, binwidth=5):
         """
         Computes the narrowband spectra of each mic
         for a specified data file.
 
         Parameters
         ----------
-        binwidth: int
-            desired frequency bin width
         filenum: int
-            data file index to report
+            Data file index to report.
+        binwidth: int, default = 5
+            Desired frequency bin width.
         Returns
         -------
         spls: np.ndarray
-            array of spl for each frequency bin
+            Array of spl for each frequency bin.
         freqs: np.ndarray
-            array of plotting frequencies
+            Array of plotting frequencies.
         """
         # set up bins
         bw = binwidth
         bins = self.fs//bw
         n = self.N//bins
         T = self.samptime/n
+
+        filenum=filenum
 
         # split data to ensembles
         # compute fft
