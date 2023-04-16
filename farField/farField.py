@@ -56,7 +56,7 @@ class micData():
     narrowband(filenum, binwidth=5)
         Compute the narrowband spectra of each mic of a given file.
     """
-    def __init__(self, path, fs, samptime):
+    def __init__(self, path, fs, samptime, single=False):
         """
         Reads in the list of data files into numpy arrays
         in a dictionary. Also sets up variables with data
@@ -70,6 +70,8 @@ class micData():
             Sampling frequency (Hz).
         samptime : int
             Sampling time (s).
+        single : bool, default = False
+            Flag for passing a single file instead of folder.
         """
         # set up collection info
         self.fs = fs     # sampling frequency
@@ -80,7 +82,10 @@ class micData():
         self.data = {}
 
         # make list of files from folder
-        files = glob.glob(path + "*.tdms")
+        if single == False:
+            files = glob.glob(path + "*.tdms")
+        elif single == True:
+            files = [path]
 
         # go through each file
         for i in range(len(files)):
@@ -184,7 +189,7 @@ class micData():
 
         # for ease, pull single data file first
         datafile = self.pData["data{0}".format(filenum)]
-        spls = np.array([self.nmics, bins//2])
+        spls = np.empty([self.nmics, bins//2])
 
         # loop through mics
         for i in range(self.nmics):
@@ -198,7 +203,7 @@ class micData():
             rms = np.sqrt(np.sum((2*fft/bins)**2, axis=0)/n)
 
             # convert to SPL and store
-            spls[i] = 20*np.log10(rms[:bins//2]/20e-6)
+            spls[i, :] = 20*np.log10(rms[:bins//2]/20e-6)
 
         # get plotting frequencies
         freqs = np.fft.fftfreq(bins, T/(bins-1))[:bins//2]
@@ -210,10 +215,17 @@ if __name__ == "__main__":
     # testing
     path = "C:\\Users\\spbro\\OneDrive - University of Cincinnati\\Cuppoletti Lab" \
             "\\NearFieldAcousticDuctedRotor\\slade mic data\\20220725\\ducted\\tm0.50" \
-            "\\mic6inplane\\"
-    micData = micData(path, 204800, 5)
+            "\\mic6inplane\\data0.tdms"
+    micData = micData(path, 204800, 5, True)
 
     corFac = np.array([0.9964, 0.9945, 0.99894, 0.99841, 1.00117, 0.99957, 0.99798, 0.9902])
 
     micData.dataProcess(corFac)
-    print(micData.oaspl(0))
+    # print(micData.oaspl(0))
+    spls, freqs = micData.narrowband(0, 5)
+    plt.semilogx(freqs, spls[6], label="Mic 6")
+    plt.semilogx(freqs, spls[0], label="Mic 0")
+    plt.legend()
+    plt.xlim([100, 100000])
+    plt.grid()
+    plt.show()
