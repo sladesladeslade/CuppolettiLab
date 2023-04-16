@@ -65,13 +65,13 @@ class micData():
         Parameters
         ----------
         path : string
-            Path to folder with .tdms files.
+            Path to folder or with .tdms files (or single file).
         fs : int
             Sampling frequency (Hz).
         samptime : int
             Sampling time (s).
         single : bool, default = False
-            Flag for passing a single file instead of folder.
+            Flag for passing a single file to "path" instead of folder.
         """
         # set up collection info
         self.fs = fs     # sampling frequency
