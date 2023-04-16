@@ -126,6 +126,7 @@ class micData():
         ----------
         filenum: int
             Data file index to report.
+
         Returns
         -------
         oaspls: np.ndarray
@@ -150,6 +151,7 @@ class micData():
             Data file index to report.
         binwidth: int, default = 5
             Desired frequency bin width.
+
         Returns
         -------
         spls: np.ndarray
