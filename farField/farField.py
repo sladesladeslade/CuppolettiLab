@@ -36,10 +36,14 @@ class micData():
         in a dictionary. Also sets up variables with data
         collection info for later use.
 
-        :param_path: path to folder with .tdms files
-        :param_fs: sampling frequency (Hz)
-        :param_samptime: sampling time (s)
-        :returns: dictionary with data array for each file
+        Parameters
+        ----------
+        path: string
+            path to folder with .tdms files
+        fs: int
+            sampling frequency (Hz)
+        samptime: int
+            sampling time (s)
         """
         # set up collection info
         self.fs = fs     # sampling frequency
@@ -80,9 +84,14 @@ class micData():
         correction factor and then doing a butterworth
         bandpass filter.
 
-        :param_corfac: np array of correction factor for each mic
-        :param_critfreqs: np array of crtifreqs
-        :param_border: butterworth order
+        Parameters
+        ----------
+        corfac: np.ndarray
+            array of correction factor for each mic
+        critfreqs: np.ndarray
+            array of crtifreqs
+        border: int
+            butterworth filter order
         """
         # apply correction factor to each file
         self.corData = self.data.copy()
@@ -104,14 +113,20 @@ class micData():
         Computes the OASPL of each mic for a
         specified data file.
 
-        :param_filenum: data file index to report
-        :returns: np array with OASPL for each mic in data file
+        Parameters
+        ----------
+        filenum: int
+            data file index to report
+        Returns
+        -------
+        oaspls: np.ndarray
+            array with OASPL for each mic in data file
         """
         oaspls = np.empty(len(self.pData["data{0}".format(filenum)]))
         for i in range(len(self.pData["data{0}".format(filenum)])):
             # calculate oaspl
             rms = np.sqrt(np.mean(np.square(self.pData["data{0}".format(filenum)][i,:])))
-            oaspls[i] = 20*np.log10(rms/20e-6)
+            oaspls[i] = np.array(20*np.log10(rms/20e-6))
 
         return oaspls
     
@@ -120,9 +135,18 @@ class micData():
         Computes the narrowband spectra of each mic
         for a specified data file.
 
-        :param_binwidth: frequency bin width
-        :param_filenum: data file index to report
-        :returns: np array of SPL values, array of frequencies
+        Parameters
+        ----------
+        binwidth: int
+            desired frequency bin width
+        filenum: int
+            data file index to report
+        Returns
+        -------
+        spls: np.ndarray
+            array of spl for each frequency bin
+        freqs: np.ndarray
+            array of plotting frequencies
         """
         # set up bins
         bw = binwidth
@@ -138,7 +162,7 @@ class micData():
         # get plotting frequencies
         freqs = np.fft.fftfreq(bins, T/(bins-1))[:bins//2]
 
-        return freqs
+        return spls, freqs
 
 
 if __name__ == "__main__":
