@@ -56,7 +56,7 @@ class micData():
     narrowband(filenum, binwidth=5)
         Compute the narrowband spectra of each mic of a given file.
     """
-    def __init__(self, path, fs, samptime, single=False):
+    def __init__(self, path:str, fs:int, samptime:int, single:bool=False):
         """
         Reads in the list of data files into numpy arrays
         in a dictionary. Also sets up variables with data
@@ -109,7 +109,7 @@ class micData():
         # get number of mics
         self.nmics = len(self.data["data0"])
 
-    def dataProcess(self, corfac, critfreqs=np.array([100, 100000]), border=5):
+    def dataProcess(self, corfac:np.ndarray, critfreqs:np.ndarray=np.array([100, 100000]), border:int=5):
         """
         Processes the data by correcting with given
         correction factor and then doing a butterworth
@@ -139,7 +139,7 @@ class micData():
             for i in range(len(self.data[key])):
                 self.pData[key][i, :] = sp.signal.filtfilt(b, a, self.corData[key][i, :])
 
-    def oaspl(self, filenum):
+    def oaspl(self, filenum:int):
         """
         Computes the OASPL of each mic for a
         specified data file.
@@ -162,7 +162,7 @@ class micData():
 
         return oaspls
     
-    def narrowband(self, filenum, binwidth=5):
+    def narrowband(self, filenum:int, binwidth:int=5):
         """
         Computes the narrowband spectra of each mic
         for a specified data file.
